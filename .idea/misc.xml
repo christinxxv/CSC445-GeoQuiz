@@ -5,7 +5,8 @@
       <map>
         <entry key="..\:/Users/chris/AndroidStudioProjects/CSC445GeoQuiz/app/src/main/res/drawable/arrow_right.xml" value="0.1875" />
         <entry key="..\:/Users/chris/AndroidStudioProjects/CSC445GeoQuiz/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1875" />
-        <entry key="..\:/Users/chris/AndroidStudioProjects/CSC445GeoQuiz/app/src/main/res/layout-land/activity_main.xml" value="0.19947916666666668" />
+        <entry key="..\:/Users/chris/AndroidStudioProjects/CSC445GeoQuiz/app/src/main/res/layout-land/activity_main.xml" value="0.25" />
+        <entry key="..\:/Users/chris/AndroidStudioProjects/CSC445GeoQuiz/app/src/main/res/layout/activity_cheat.xml" value="0.17916666666666667" />
         <entry key="..\:/Users/chris/AndroidStudioProjects/CSC445GeoQuiz/app/src/main/res/layout/activity_main.xml" value="0.25" />
       </map>
     </option>
