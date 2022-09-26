@@ -21,7 +21,6 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         Question(R.string.question_asia, true))
 
 
-
      var currentIndex: Int
         get() = savedStateHandle.get(CURRENT_INDEX_KEY) ?: 0
         set(value) = savedStateHandle.set(CURRENT_INDEX_KEY, value)
@@ -33,7 +32,6 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     var numAnswered: Int
         get() = savedStateHandle.get(NUM_ANSWERED) ?: 0
         set(value) = savedStateHandle.set(NUM_ANSWERED, value)
-
 
 
     val currentQuestionAnswer: Boolean
@@ -54,6 +52,10 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     fun moveToPrev() {
         currentIndex = (currentIndex + questionBank.size - 1) % questionBank.size
+    }
+
+    fun updateAsCheated() {
+        questionBank[currentIndex].cheated = true
     }
 
 }

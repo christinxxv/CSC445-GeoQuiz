@@ -1,20 +1,14 @@
 package edu.mwsu.csmp.cwilson39.csc445_geoquiz
 
 import android.app.Activity
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import edu.mwsu.csmp.cwilson39.csc445_geoquiz.databinding.ActivityMainBinding
-import java.lang.ref.Reference
-import java.math.BigDecimal
-import java.util.*
 
 private const val TAG = "MainActivity"
 
@@ -28,12 +22,11 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         // Handle the result
         if (result.resultCode == Activity.RESULT_OK) {
-            quizViewModel.isCheater =
-                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            val cheated = result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            if (cheated) quizViewModel.updateAsCheated()
+
         }
     }
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -63,24 +56,20 @@ class MainActivity : AppCompatActivity() {
         updateQuestion()
         binding.nextButton.setOnClickListener {
             quizViewModel.moveToNext()
-            isAnswered(quizViewModel.currentIndex)
             updateQuestion()
         }
 
         binding.questionTextView.setOnClickListener {
             quizViewModel.moveToNext()
-            isAnswered(quizViewModel.currentIndex)
             updateQuestion()
         }
 
         binding.prevButton.setOnClickListener {
             quizViewModel.moveToPrev()
-            isAnswered(quizViewModel.currentIndex)
             updateQuestion()
         }
 
         binding.cheatButton.setOnClickListener {
-            // Start CheatActivity
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
             cheatLauncher.launch(intent)
@@ -116,12 +105,13 @@ class MainActivity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
+        isAnswered(quizViewModel.currentIndex)
     }
 
     private fun checkAnswer(userAnswer: Boolean, index: Int) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
         val answerTextResId = when {
-            quizViewModel.isCheater -> R.string.judgment_toast
+            quizViewModel.questionBank[quizViewModel.currentIndex].cheated -> R.string.judgment_toast
             userAnswer == correctAnswer -> R.string.correct_message
             else -> R.string.incorrect_message
         }
@@ -161,10 +151,11 @@ class MainActivity : AppCompatActivity() {
         val percent = (quizViewModel.numCorrect * 100) / quizViewModel.numAnswered
         val grade = "${quizViewModel.numCorrect}/${quizViewModel.numAnswered} or %$percent"
         Log.d(TAG, grade)
-
+        Log.d(TAG, "${quizViewModel.questionBank.size}")
         if (quizViewModel.numAnswered == quizViewModel.questionBank.size) {
-            Toast.makeText(this, grade, Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, grade, Snackbar.LENGTH_SHORT).show()
         }
     }
+
 
 } // End of MainActivity class.
