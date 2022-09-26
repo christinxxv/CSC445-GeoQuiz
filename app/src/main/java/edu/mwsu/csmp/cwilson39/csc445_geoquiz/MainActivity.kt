@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import edu.mwsu.csmp.cwilson39.csc445_geoquiz.databinding.ActivityMainBinding
 import java.lang.ref.Reference
+import java.util.*
 
 private const val TAG = "MainActivity"
 
@@ -31,6 +32,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -43,29 +46,33 @@ class MainActivity : AppCompatActivity() {
         displayWelcome("Welcome to GeoQuiz!")
 
         binding.trueButton.setOnClickListener {
-            checkAnswer(true)
-            questionAnswered(binding.trueButton)
-            /*isAnswered(quizViewModel.currentIndex)*/
-
+            checkAnswer(true, quizViewModel.currentIndex)
+            quizViewModel.questionBank[quizViewModel.currentIndex].answered = true
+            isAnswered(quizViewModel.currentIndex)
         }
 
         binding.falseButton.setOnClickListener {
-            checkAnswer(false)
+            checkAnswer(false, quizViewModel.currentIndex)
+            quizViewModel.questionBank[quizViewModel.currentIndex].answered = true
+            isAnswered(quizViewModel.currentIndex)
         }
 
         updateQuestion()
         binding.nextButton.setOnClickListener {
             quizViewModel.moveToNext()
+            isAnswered(quizViewModel.currentIndex)
             updateQuestion()
         }
 
         binding.questionTextView.setOnClickListener {
             quizViewModel.moveToNext()
+            isAnswered(quizViewModel.currentIndex)
             updateQuestion()
         }
 
         binding.prevButton.setOnClickListener {
             quizViewModel.moveToPrev()
+            isAnswered(quizViewModel.currentIndex)
             updateQuestion()
         }
 
@@ -75,8 +82,6 @@ class MainActivity : AppCompatActivity() {
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
             cheatLauncher.launch(intent)
         }
-
-       /* binding.prevButton.isClickable = false*/
 
     } // End of onCreate
 
@@ -110,15 +115,21 @@ class MainActivity : AppCompatActivity() {
         binding.questionTextView.setText(questionTextResId)
     }
 
-    private fun checkAnswer(userAnswer: Boolean) {
+    private fun checkAnswer(userAnswer: Boolean, index: Int) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
         val answerTextResId = when {
             quizViewModel.isCheater -> R.string.judgment_toast
-            userAnswer == correctAnswer -> R.string.correct_message
-            else -> R.string.incorrect_message
+            userAnswer == correctAnswer -> {
+                R.string.correct_message
+            }
+            else -> {
+                R.string.incorrect_message
+            }
         }
-
-        Snackbar.make(binding.root, answerTextResId, Snackbar.LENGTH_SHORT).show()
+        if(userAnswer == correctAnswer) {
+            quizViewModel.quizGrade++
+        }
+        /*Snackbar.make(binding.root, answerTextResId, Snackbar.LENGTH_SHORT).show()*/
     }
 
     private fun displayWelcome(welcomeMsg : String) {
@@ -129,14 +140,32 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun questionAnswered(button : Button) {
-        button.setBackgroundColor(Color.YELLOW)
+    private fun isAnswered(index:Int){
+        if (quizViewModel.questionBank[index].answered){
+            binding.trueButton.isEnabled=false
+            binding.falseButton.isEnabled=false
+            if(quizViewModel.numAnswered <= quizViewModel.questionBank.size) {
+                quizViewModel.numAnswered++
+            } else {
+                quizViewModel.numAnswered = 0
+            }
+            if (quizViewModel.numAnswered == quizViewModel.questionBank.size) {
+                Toast.makeText(this, quizViewModel.quizGrade, Toast.LENGTH_SHORT).show()
+            }
+            Log.d(TAG, "numAnswered: ${quizViewModel.numAnswered}")
+        }else{
+            binding.trueButton.isEnabled=true
+            binding.falseButton.isEnabled=true
+        }
+        Log.d(TAG,"currentIndex:  ${quizViewModel.currentIndex}")
+        Log.d(TAG, "isAnswered: ${quizViewModel.questionBank[quizViewModel.currentIndex].answered}")
+        Log.d(TAG, "grade: ${quizViewModel.quizGrade}")
     }
 
-    private fun isAnswered(index: Int) {
-        val isQuestionAnswered = quizViewModel.questionBank[index].answered
-        binding.trueButton.isEnabled = !isQuestionAnswered
-        binding.falseButton.isEnabled = !isQuestionAnswered
-    }
+
+
+
+
+
 
 } // End of MainActivity class.
