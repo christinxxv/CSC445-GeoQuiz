@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import edu.mwsu.csmp.cwilson39.csc445_geoquiz.databinding.ActivityMainBinding
 import java.lang.ref.Reference
+import java.math.BigDecimal
 import java.util.*
 
 private const val TAG = "MainActivity"
@@ -49,12 +50,14 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(true, quizViewModel.currentIndex)
             quizViewModel.questionBank[quizViewModel.currentIndex].answered = true
             isAnswered(quizViewModel.currentIndex)
+            isEnd()
         }
 
         binding.falseButton.setOnClickListener {
             checkAnswer(false, quizViewModel.currentIndex)
             quizViewModel.questionBank[quizViewModel.currentIndex].answered = true
             isAnswered(quizViewModel.currentIndex)
+            isEnd()
         }
 
         updateQuestion()
@@ -119,17 +122,20 @@ class MainActivity : AppCompatActivity() {
         val correctAnswer = quizViewModel.currentQuestionAnswer
         val answerTextResId = when {
             quizViewModel.isCheater -> R.string.judgment_toast
-            userAnswer == correctAnswer -> {
-                R.string.correct_message
-            }
-            else -> {
-                R.string.incorrect_message
-            }
+            userAnswer == correctAnswer -> R.string.correct_message
+            else -> R.string.incorrect_message
         }
         if(userAnswer == correctAnswer) {
-            quizViewModel.quizGrade++
+            quizViewModel.numCorrect++
         }
-        /*Snackbar.make(binding.root, answerTextResId, Snackbar.LENGTH_SHORT).show()*/
+        if(quizViewModel.numAnswered <= quizViewModel.questionBank.size) {
+            quizViewModel.numAnswered++
+        }
+        Log.d(TAG,"------------------------")
+        Log.d(TAG,"currentIndex:  ${quizViewModel.currentIndex}")
+        Log.d(TAG, "numCorrect: ${quizViewModel.numCorrect}")
+        Log.d(TAG, "numAnswered: ${quizViewModel.numAnswered}")
+        Snackbar.make(binding.root, answerTextResId, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun displayWelcome(welcomeMsg : String) {
@@ -144,28 +150,21 @@ class MainActivity : AppCompatActivity() {
         if (quizViewModel.questionBank[index].answered){
             binding.trueButton.isEnabled=false
             binding.falseButton.isEnabled=false
-            if(quizViewModel.numAnswered <= quizViewModel.questionBank.size) {
-                quizViewModel.numAnswered++
-            } else {
-                quizViewModel.numAnswered = 0
-            }
-            if (quizViewModel.numAnswered == quizViewModel.questionBank.size) {
-                Toast.makeText(this, quizViewModel.quizGrade, Toast.LENGTH_SHORT).show()
-            }
-            Log.d(TAG, "numAnswered: ${quizViewModel.numAnswered}")
         }else{
             binding.trueButton.isEnabled=true
             binding.falseButton.isEnabled=true
         }
-        Log.d(TAG,"currentIndex:  ${quizViewModel.currentIndex}")
         Log.d(TAG, "isAnswered: ${quizViewModel.questionBank[quizViewModel.currentIndex].answered}")
-        Log.d(TAG, "grade: ${quizViewModel.quizGrade}")
     }
 
+    private fun isEnd() {
+        val percent = (quizViewModel.numCorrect * 100) / quizViewModel.numAnswered
+        val grade = "${quizViewModel.numCorrect}/${quizViewModel.numAnswered} or %$percent"
+        Log.d(TAG, grade)
 
-
-
-
-
+        if (quizViewModel.numAnswered == quizViewModel.questionBank.size) {
+            Toast.makeText(this, grade, Toast.LENGTH_SHORT).show()
+        }
+    }
 
 } // End of MainActivity class.
