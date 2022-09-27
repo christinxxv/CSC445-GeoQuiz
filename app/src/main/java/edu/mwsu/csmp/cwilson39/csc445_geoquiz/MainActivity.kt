@@ -41,15 +41,15 @@ class MainActivity : AppCompatActivity() {
 
         binding.trueButton.setOnClickListener {
             checkAnswer(true, quizViewModel.currentIndex)
-            quizViewModel.questionBank[quizViewModel.currentIndex].answered = true
-            isAnswered(quizViewModel.currentIndex)
+            quizViewModel.updateAsAnswered()
+            isAnswered()
             isEnd()
         }
 
         binding.falseButton.setOnClickListener {
             checkAnswer(false, quizViewModel.currentIndex)
-            quizViewModel.questionBank[quizViewModel.currentIndex].answered = true
-            isAnswered(quizViewModel.currentIndex)
+            quizViewModel.updateAsAnswered()
+            isAnswered()
             isEnd()
         }
 
@@ -105,13 +105,13 @@ class MainActivity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
-        isAnswered(quizViewModel.currentIndex)
+        isAnswered()
     }
 
     private fun checkAnswer(userAnswer: Boolean, index: Int) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
         val answerTextResId = when {
-            quizViewModel.questionBank[quizViewModel.currentIndex].cheated -> R.string.judgment_toast
+            quizViewModel.currentCheated -> R.string.judgment_toast
             userAnswer == correctAnswer -> R.string.correct_message
             else -> R.string.incorrect_message
         }
@@ -136,15 +136,16 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun isAnswered(index:Int){
-        if (quizViewModel.questionBank[index].answered){
+    private fun isAnswered(){
+        Log.d(TAG, "curAnswered: ${quizViewModel.currentAnswered}")
+        if (quizViewModel.currentAnswered){
             binding.trueButton.isEnabled=false
             binding.falseButton.isEnabled=false
         }else{
             binding.trueButton.isEnabled=true
             binding.falseButton.isEnabled=true
         }
-        Log.d(TAG, "isAnswered: ${quizViewModel.questionBank[quizViewModel.currentIndex].answered}")
+        Log.d(TAG, "isAnswered: ${quizViewModel.currentAnswered}")
     }
 
     private fun isEnd() {
